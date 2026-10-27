@@ -1,0 +1,14 @@
+[project]
+name = "rudp-transport"
+version = "0.1.0"
+description = "A TCP-like reliable transport over UDP with Reno congestion control and a network-impairment proxy"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-timeout", "matplotlib"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "--timeout=120"
