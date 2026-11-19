@@ -115,9 +115,17 @@ kept behind `TransportConfig(timestamps=False)` for comparison
 | timestamp echo | intact in 11.7 s, 26 timeouts | 3.2 s |
 | Karn's rule only | did not finish within 400 s | — |
 
-At 10% loss or less the two modes measured the same (see `results/summary.md`). With a
-20 ms RTT the RTO sits at its 200 ms floor either way, so the difference only appears once
-losses come back to back.
+At 10% loss or less the two modes measured the same (see `results/summary.md`). A follow-up
+run at 10% loss (`bench/rto_floor_10pct.py`, 512 KiB, 3 seeds per mode) shows why. With
+timestamps, every new ACK produced an RTT sample, and the computed RTO (SRTT 22–29 ms
+plus 4·RTTVAR) stayed below this implementation's 200 ms minimum, so the applied RTO was
+200 ms at every ACK. With Karn's rule only, 81–90% of new ACKs produced a sample. The RTO
+sat at the 200 ms floor at 84–95% of ACKs and was still backed off at the rest, but enough
+clean samples arrived for it to recover. At 20% loss it did not recover. These experiments
+don't establish the exact loss level or pattern at which that changes.
+
+The 200 ms minimum is a setting chosen for fast tests (it matches Linux); RFC 6298 recommends
+1 s. Timing-dependent figures such as maximum RTO vary between runs of the same seed.
 
 ## Limitations
 
